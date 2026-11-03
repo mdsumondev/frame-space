@@ -1,6 +1,6 @@
 # frame-space
 
-Small Next.js 16 app (App Router, single package, npm). "Frame space" — authentication is the implemented feature so far (email/password + Google sign-in/sign-up).
+Small Next.js 16 app (App Router, single package, npm). "Frame space" — implemented so far: authentication (email/password + Google sign-in/sign-up) and the studio dashboard (`/add-studio`, `/my-listings`).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -31,10 +31,18 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Client: `src/lib/auth-client.ts` — build new client calls off the exported destructure (`signIn`, `signUp`, `useSession`).
 - Auth API is mounted at `src/app/api/auth/[...all]/route.ts` (`/api/auth/*` to the better-auth handler).
 - Auth UI pages live in the route group `src/app/(Authentication)/` (`/sign-in`, `/sign-up`); client pages use `router.push` + `react-toastify` `toast()` for feedback.
+
 - Required env vars (`.env` at repo root, gitignored — never commit or echo values): `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `MONGODB_URI`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+
+## Studio data (external backend)
+
+- Studio CRUD is **not** served by this app. `add-studio` and `my-listings` POST/GET a hardcoded `http://localhost:5000` backend (separate service, not in this repo): `POST /add-studio`, `GET /my-listings/:email` (keyed by user email). Without that server running, dashboard pages fail — errors are only `console.log`ged, so check the browser console.
+- Shared payload shape: `src/Type/studioType.ts` (`StudioType`). Dashboard pages are `"use client"` and gate their fetch on `useSession`; follow that pattern for new data pages.
+- `Header` and `<ToastContainer>` are rendered in the root layout — pages only call `toast()`; don't add another `ToastContainer`.
 
 ## Conventions
 
 - Path alias `@/*` → `src/*`.
+- Route groups have misspelled names — preserve them: `src/app/(Dashbord)/` (`/my-listings`, `/add-studio`). Nested component folders also differ in casing: `(Authentication)/_components/UserData.tsx` vs `(Dashbord)/_Components/MyListing.tsx`; match each group's existing casing (breaks on case-sensitive filesystems).
 - Shared components sit in `src/app/Componets/` (sic — folder name is misspelled; keep it for consistency with `Header.tsx`).
 - Styling: Tailwind v4 + daisyUI 5 via `@plugin "daisyui"` in `src/app/globals.css`; layout sets `data-theme="light"`. Prefer daisyUI semantic classes (`btn`, `card`, `hero`, `fieldset`).
