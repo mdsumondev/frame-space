@@ -5,6 +5,7 @@ import Header from "./Componets/Header";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Footer from "./Componets/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,14 +30,22 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-theme="light"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <Header />
 
         {children}
         <ToastContainer position="top-right" autoClose={3000} />
+        <Footer />
       </body>
     </html>
   );

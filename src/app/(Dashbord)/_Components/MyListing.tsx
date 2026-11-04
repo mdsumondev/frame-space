@@ -1,13 +1,37 @@
-import React from "react";
 import { StudioType } from "@/Type/studioType";
 import Image from "next/image";
+import EditListing from "./EditListing";
+import { toast } from "react-toastify";
 
 interface MyListingType {
   listing: StudioType;
+  refreshListings: () => Promise<void>;
 }
 
-const MyListing = ({ listing }: MyListingType) => {
-  const { title, category, image, hourlyRate } = listing;
+const MyListing = ({ listing, refreshListings }: MyListingType) => {
+  const { _id, title, category, image, hourlyRate } = listing;
+
+  const deleteMyListing = async (id: string) => {
+    try {
+      const res = await fetch(`http://localhost:5000/my-listings/${id}`, {
+        method: "DELETE",
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+
+      const result = await res.json();
+      console.log(result);
+
+      if (res.ok) {
+        toast.success("Studio delete");
+        await refreshListings();
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Delete request Fail!");
+    }
+  };
 
   return (
     <tr className="hover:bg-stone-50/50 transition-colors border-b-gray-300 border">
@@ -49,23 +73,17 @@ const MyListing = ({ listing }: MyListingType) => {
       <td className="py-4 px-6 text-right">
         <div className="flex items-center justify-end gap-2">
           {/* Edit Button */}
-          <button className="p-2 text-stone-600 hover:text-stone-900 bg-stone-50 hover:bg-stone-100 border border-stone-200 rounded-lg transition-colors">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-              />
-            </svg>
-          </button>
+
+          <EditListing
+            listing={listing}
+            refreshListings={refreshListings}
+          />
+
           {/* Delete Button */}
-          <button className="p-2 text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/60 rounded-lg transition-colors">
+          <button
+            onClick={() => deleteMyListing(_id)}
+            className="p-2 text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/60 rounded-lg transition-colors"
+          >
             <svg
               className="w-4 h-4"
               fill="none"

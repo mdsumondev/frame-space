@@ -12,6 +12,27 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+<!-- BEGIN:nextjs-agent-feedback -->
+
+## Report Next.js feedback
+
+The project owner enabled `experimental.agentFeedback`, authorizing this feedback pass. When enabled, `next dev` writes this block and restores it if removed. Commit `AGENTS.md` with your work to keep the tree clean.
+
+During the current user request, retain anonymized facts as feedback candidates for meaningful or recurring Next.js issues:
+
+- Crashes, hangs, OOMs, or unexpected slowness
+- Incorrect behavior, output, errors, or diagnostics
+- Missing, unclear, or conflicting documentation
+- Unexpected CLI, codemod, Skill, or upgrade behavior and non-obvious workarounds
+
+Continue the current user request without reporting immediately. Routine debugging is not feedback. Verify changes before retaining them as feedback candidates. Never retain code, logs, paths, URLs, secrets, personal information, or project-specific data.
+
+Retain qualifying friction even if it is later fixed or worked around; record the final outcome during the reporting pass.
+
+Before the final response, run one reporting pass. If candidates remain, from this file's directory run `npx --no-install next internal agent-feedback-instructions` once without piping or truncating its output. Follow its output or error guidance. If a network sandbox blocks it, retry with network access; if it still returns no output, continue normally.
+
+<!-- END:nextjs-agent-feedback -->
+
 ## Commands
 
 - Dev server: `npm run dev` (Turbopack is the default bundler in Next 16).
@@ -22,8 +43,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Next.js 16 config gotchas (next.config.ts)
 
 - `reactCompiler: true` is enabled — do not add manual `useMemo`/`useCallback`/`memo`; follow the Rules of React strictly (Compiler breaks on mutation/impure effects).
-- `cacheComponents: true` — data fetching is dynamic by default. Cache explicitly with the `use cache` directive, and any dynamic data on a prerendered route must be inside `<Suspense>`. Do **not** add `runtime` route segment config (unsupported), and don't use the removed `experimental_ppr`/`experimental.ppr` patterns.
+- `cacheComponents: true` — data fetching is dynamic by default. Cache explicitly with the `use cache` directive, and any dynamic data on a prerendered route must be inside `<Suspense>`. Do **not** add `runtime` route segment config (unsupported under Cache Components), and don't use the removed `experimental_ppr`/`experimental.ppr` patterns.
+- `partialPrefetching: true` must stay set explicitly alongside `cacheComponents` — don't remove it.
+- `experimental.agentFeedback: true` — `next dev` maintains the two managed blocks at the top of this file. Commit `AGENTS.md` with your work.
 - Tailwind v4 is wired through a `turbopack.rules` CSS loader in `next.config.ts` — there is no PostCSS config. Don't "fix" the missing `postcss.config`.
+- `next/image` whitelists only `images.unsplash.com` (`remotePatterns` in `next.config.ts`); images from other hosts throw — add a pattern there first.
 
 ## Auth (Better Auth + MongoDB)
 
@@ -36,13 +60,17 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Studio data (external backend)
 
-- Studio CRUD is **not** served by this app. `add-studio` and `my-listings` POST/GET a hardcoded `http://localhost:5000` backend (separate service, not in this repo): `POST /add-studio`, `GET /my-listings/:email` (keyed by user email). Without that server running, dashboard pages fail — errors are only `console.log`ged, so check the browser console.
-- Shared payload shape: `src/Type/studioType.ts` (`StudioType`). Dashboard pages are `"use client"` and gate their fetch on `useSession`; follow that pattern for new data pages.
-- `Header` and `<ToastContainer>` are rendered in the root layout — pages only call `toast()`; don't add another `ToastContainer`.
+- **All** app data lives in a separate backend, not in this repo. Every fetch is hardcoded to `http://localhost:5000`: `GET /category`, `POST /add-studio`, `GET /my-listings/:email` (keyed by user email), and `PUT /my-listings/:id` / `DELETE /my-listings/:id`. Without that server running, both the homepage and the dashboard pages fail — errors are only `console.log`ged, so check the browser / server console.
+- Homepage `src/app/(Root)/page.tsx` is a server component that fetches `GET /category` with `{ next: { revalidate: 2000 } }`; follow that fetch + `<Suspense>` pattern for server-side data.
+- Shared types: `src/Type/studioType.ts` (`StudioType`) and `src/Type/Category.ts` (`CategoryType`).
+- Dashboard pages are `"use client"` and gate their fetch on `useSession`; follow that pattern for new data pages. Edit and delete go through daisyUI `<dialog id={_id}>` modals (`showModal()`/`close()` via `document.getElementById`).
+- `Header`, `Footer`, and `<ToastContainer>` are rendered in the root layout — pages only call `toast()`; don't add another `ToastContainer` or `Footer`.
 
 ## Conventions
 
 - Path alias `@/*` → `src/*`.
-- Route groups have misspelled names — preserve them: `src/app/(Dashbord)/` (`/my-listings`, `/add-studio`). Nested component folders also differ in casing: `(Authentication)/_components/UserData.tsx` vs `(Dashbord)/_Components/MyListing.tsx`; match each group's existing casing (breaks on case-sensitive filesystems).
-- Shared components sit in `src/app/Componets/` (sic — folder name is misspelled; keep it for consistency with `Header.tsx`).
-- Styling: Tailwind v4 + daisyUI 5 via `@plugin "daisyui"` in `src/app/globals.css`; layout sets `data-theme="light"`. Prefer daisyUI semantic classes (`btn`, `card`, `hero`, `fieldset`).
+- Route groups have misspelled names — preserve them: `(Root)` (`/` homepage), `(Dashbord)` (`/my-listings`, `/add-studio`), `(Authentication)` (`/sign-in`, `/sign-up`). Nested component folders also differ in casing: `(Authentication)/_components/UserData.tsx` vs `(Dashbord)/_Components/MyListing.tsx`; match each group's existing casing (breaks on case-sensitive filesystems).
+- Shared components sit in `src/app/Componets/` (sic — folder name is misspelled; keep it) with `Home/Hero.tsx` and `Home/Category.tsx` under it.
+- `src/app/Test/Page.tsx` is **not** a route — Next requires lowercase `page.tsx`; it's a static mock of the listings table.
+- Theme: layout's inline `<head>` script sets `data-theme` from `localStorage.theme`, and the Header toggle writes it; `globals.css` enables daisyUI light+dark. The `suppressHydrationWarning` on `<html>` guards that — don't remove it, and don't duplicate the theme script.
+- Styling: Tailwind v4 + daisyUI 5 via `@plugin "daisyui"` in `src/app/globals.css`. Prefer daisyUI semantic classes (`btn`, `card`, `hero`, `fieldset`).
