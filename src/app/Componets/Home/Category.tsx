@@ -1,14 +1,13 @@
 import { CategoryType } from "@/Type/Category";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 const Category = ({ category }: { category: CategoryType }) => {
   const { title, description, image } = category;
 
   return (
-    <div
-      className="group relative aspect-[16/10] overflow-hidden rounded-2xl bg-stone-900 [counter-increment:cat] first:md:row-span-2 first:md:aspect-auto"
-    >
+    <div className="group relative aspect-[16/10] overflow-hidden rounded-2xl bg-stone-900 [counter-increment:cat] first:md:row-span-2 first:md:aspect-auto">
       <Image
         src={image}
         alt={title}
@@ -32,19 +31,21 @@ const Category = ({ category }: { category: CategoryType }) => {
           </p>
         </div>
 
-        <svg
-          className="h-5 w-5 shrink-0 text-white transition-transform duration-300 group-hover:translate-x-1 md:h-6 md:w-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M5 12h14M13 6l6 6-6 6"
-          />
-        </svg>
+        <Link href={`/category/${title}`}>
+          <svg
+            className="h-5 w-5 shrink-0 text-white transition-transform duration-300 group-hover:translate-x-1 md:h-6 md:w-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M5 12h14M13 6l6 6-6 6"
+            />
+          </svg>
+        </Link>
       </div>
     </div>
   );
