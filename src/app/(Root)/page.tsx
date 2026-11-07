@@ -3,6 +3,7 @@ import Hero from "../Componets/Home/Hero";
 import { CategoryType } from "@/Type/Category";
 import { Suspense } from "react";
 import Category from "../Componets/Home/Category";
+import NewestFeatures from "../Componets/Home/NewestSix";
 
 const categoryData = async (): Promise<{
   status: number;
@@ -51,6 +52,7 @@ export default async function Home() {
           </Suspense>
         </div>
       </section>
+      <NewestFeatures />
     </div>
   );
 }

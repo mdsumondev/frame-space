@@ -10,31 +10,25 @@ const fetchStudiosData = async (): Promise<StudioType[]> => {
   return result.data;
 };
 
-// 2. Separate async component so Suspense fallback works as intended
-const StudiosList = async () => {
+const StudiosPage = async () => {
   const studios = await fetchStudiosData();
 
   return (
-    <>
-      {studios.map((studio) => (
-        <ProductsCard key={studio._id} studio={studio} />
-      ))}
-    </>
-  );
-};
-
-const StudiosPage = () => {
-  return (
     <div>
-      <div className="container mx-auto">
+      <div className="container mx-auto py-20">
+        <h1 className="text-3xl font-bold mb-2">All Studios</h1>
+        <p className="text-base mb-5">
+          Total {studios.length} studios available
+        </p>
         <div className="grid lg:grid-cols-3 sm:grid-cols-1 gap-4">
-          {/* 3. Clean JSX syntax inside Suspense */}
           <Suspense
             fallback={
               <span className="loading loading-ring loading-2xl"></span>
             }
           >
-            <StudiosList />
+            {studios.map((studio) => (
+              <ProductsCard key={studio._id} studio={studio} />
+            ))}
           </Suspense>
         </div>
       </div>
