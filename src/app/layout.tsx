@@ -33,19 +33,12 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}`,
-          }}
-        />
-      </head>
       <body className="min-h-full flex flex-col">
-        <Header />
+        {/* <Header /> */}
 
         {children}
         <ToastContainer position="top-right" autoClose={3000} />
-        <Footer />
+        {/* <Footer /> */}
       </body>
     </html>
   );

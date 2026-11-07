@@ -1,6 +1,6 @@
 # frame-space
 
-Small Next.js 16 app (App Router, single package, npm). "Frame space" — implemented so far: authentication (email/password + Google sign-in/sign-up) and the studio dashboard (`/add-studio`, `/my-listings`).
+Small Next.js 16 app (App Router, single package, npm). "Frame space" — implemented so far: authentication (email/password + Google sign-in/sign-up), the studio dashboard (`/add-studio`, `/my-listings`), and public browsing routes (`/studios`, `/studio/[id]`, `/category/[category]`). `/about-up` is an empty placeholder page.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -60,17 +60,20 @@ Before the final response, run one reporting pass. If candidates remain, from th
 
 ## Studio data (external backend)
 
-- **All** app data lives in a separate backend, not in this repo. Every fetch is hardcoded to `http://localhost:5000`: `GET /category`, `POST /add-studio`, `GET /my-listings/:email` (keyed by user email), and `PUT /my-listings/:id` / `DELETE /my-listings/:id`. Without that server running, both the homepage and the dashboard pages fail — errors are only `console.log`ged, so check the browser / server console.
-- Homepage `src/app/(Root)/page.tsx` is a server component that fetches `GET /category` with `{ next: { revalidate: 2000 } }`; follow that fetch + `<Suspense>` pattern for server-side data.
-- Shared types: `src/Type/studioType.ts` (`StudioType`) and `src/Type/Category.ts` (`CategoryType`).
-- Dashboard pages are `"use client"` and gate their fetch on `useSession`; follow that pattern for new data pages. Edit and delete go through daisyUI `<dialog id={_id}>` modals (`showModal()`/`close()` via `document.getElementById`).
+- **All** app data lives in a separate backend, not in this repo. Every fetch is hardcoded to `http://localhost:5000`: `GET /category`, `GET /category/:category`, `GET /studios`, `GET /studios/:id`, `GET /neweststudios`, `POST /studios/:id/reviews`, `POST /add-studio`, `GET /my-listings/:email` (keyed by user email), and `PUT /my-listings/:id` / `DELETE /my-listings/:id`. Without that server running, the homepage, browsing routes, and dashboard pages all fail — errors are only `console.log`ged, so check the browser / server console.
+- Response envelope is inconsistent: most endpoints return `{ status, message, data }` and you must unwrap `.data`, but `GET /category/:category` returns the bare array. Check the actual payload shape when wiring a new endpoint instead of assuming.
+- Homepage `src/app/(Root)/page.tsx` is a server component that fetches `GET /category` with `{ next: { revalidate: 2000 } }` (same revalidate on `/category/[category]`); follow that fetch + `<Suspense>` pattern for server-side data. `/studio/[id]` uses `generateStaticParams` with a separate `cache: "force-cache"` fetch of `GET /studios`.
+- Route params are `Promise`s — pages receive `params: Promise<...>` and must `await` them (see any `page.tsx` under `(Root)`). `/studio/[id]` posts reviews via an inline `"use server"` action, then `redirect()`s back to the page.
+- Shared types: `src/Type/studioType.ts` (`StudioType`) and `src/Type/Category.ts` (`CategoryType`). The backend sends fields the type doesn't declare (`rating`, `images`, `createdAt`) — existing components read them defensively via casts + fallbacks; extend the type or follow that pattern.
+- Card components: `Componets/ProductsCard.tsx` links to `/studio/${_id}`, `Componets/Home/Category.tsx` links to `/category/${title}` (category titles double as URL slugs).
+- Dashboard pages are `"use client"` and gate their fetch on `useSession`; follow that pattern for new data pages. Edit and delete go through daisyUI `<dialog id={_id}>` modals (`showModal()`/`close()` via `document.getElementById`); the edit form lives in `(Dashbord)/_Components/EditListing.tsx`.
 - `Header`, `Footer`, and `<ToastContainer>` are rendered in the root layout — pages only call `toast()`; don't add another `ToastContainer` or `Footer`.
 
 ## Conventions
 
 - Path alias `@/*` → `src/*`.
-- Route groups have misspelled names — preserve them: `(Root)` (`/` homepage), `(Dashbord)` (`/my-listings`, `/add-studio`), `(Authentication)` (`/sign-in`, `/sign-up`). Nested component folders also differ in casing: `(Authentication)/_components/UserData.tsx` vs `(Dashbord)/_Components/MyListing.tsx`; match each group's existing casing (breaks on case-sensitive filesystems).
-- Shared components sit in `src/app/Componets/` (sic — folder name is misspelled; keep it) with `Home/Hero.tsx` and `Home/Category.tsx` under it.
+- Route groups have misspelled names — preserve them: `(Root)` (`/`, `/studios`, `/studio/[id]`, `/category/[category]`), `(Dashbord)` (`/my-listings`, `/add-studio`, `/about-up`), `(Authentication)` (`/sign-in`, `/sign-up`). Nested component folders also differ in casing: `(Authentication)/_components/UserData.tsx` vs `(Dashbord)/_Components/MyListing.tsx` and `EditListing.tsx`; match each group's existing casing (breaks on case-sensitive filesystems).
+- Shared components sit in `src/app/Componets/` (sic — folder name is misspelled; keep it): `Home/Hero.tsx`, `Home/Category.tsx`, `Home/NewestSix.tsx` (the homepage's "newest studios" section), and `ProductsCard.tsx` (shared card for studios lists).
 - `src/app/Test/Page.tsx` is **not** a route — Next requires lowercase `page.tsx`; it's a static mock of the listings table.
 - Theme: layout's inline `<head>` script sets `data-theme` from `localStorage.theme`, and the Header toggle writes it; `globals.css` enables daisyUI light+dark. The `suppressHydrationWarning` on `<html>` guards that — don't remove it, and don't duplicate the theme script.
 - Styling: Tailwind v4 + daisyUI 5 via `@plugin "daisyui"` in `src/app/globals.css`. Prefer daisyUI semantic classes (`btn`, `card`, `hero`, `fieldset`).

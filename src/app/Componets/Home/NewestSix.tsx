@@ -7,7 +7,11 @@ const newestDataCall = async (): Promise<{
   message: string;
   data: StudioType[];
 }> => {
-  const res = await fetch("http://localhost:5000/neweststudios");
+  const res = await fetch("http://localhost:5000/neweststudios", {
+    next: {
+      revalidate: 2000,
+    },
+  });
   return res.json();
 };
 
