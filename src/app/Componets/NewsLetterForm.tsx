@@ -14,7 +14,7 @@ const NewsLetterForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="flex items-center gap-2 border-b border-base-content/30 pb-2 focus-within:border-base-content">
+      <div className="flex items-center gap-2 border-b border-base-300 pb-2 focus-within:border-white">
         <input
           type="email"
           required
@@ -22,19 +22,19 @@ const NewsLetterForm = () => {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Your email address"
           aria-label="Your email address"
-          className="w-full bg-transparent text-sm outline-none placeholder:text-base-content/50"
+          className="w-full bg-transparent text-sm outline-none text-white"
         />
         <button
           type="submit"
           aria-label="Subscribe to the newsletter"
-          className="btn btn-ghost btn-xs p-2 shadow-none hover:bg-transparent"
+          className="btn btn-ghost btn-xs p-2 shadow-none hover:bg-transparent placeholder-base-300"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-4 w-4 text-base-content"
             fill="none"
             viewBox="0 0 24 24"
-            stroke="currentColor"
+            stroke="white"
             strokeWidth="2"
           >
             <path
