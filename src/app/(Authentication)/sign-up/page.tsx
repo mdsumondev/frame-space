@@ -42,6 +42,8 @@ const SignUpPage = () => {
 
     setLoading(true);
 
+    console.log(user);
+
     try {
       const { data, error } = await signUp.email({
         name: user.name as string,

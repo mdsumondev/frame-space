@@ -1,6 +1,6 @@
 # frame-space
 
-Small Next.js 16 app (App Router, single package, npm). "Frame space" — implemented so far: authentication (email/password + Google sign-in/sign-up), the studio dashboard (`/add-studio`, `/my-listings`), and public browsing routes (`/studios`, `/studio/[id]`, `/category/[category]`). `/about-up` is an empty placeholder page.
+Small Next.js 16 app (App Router, single package, npm). "Frame space" — implemented so far: authentication (email/password + Google sign-in/sign-up), the studio dashboard (`/add-studio`, `/my-listings`), public browsing routes (`/studios`, `/studio/[id]`, `/category/[category]`), `/about-us`, and a global `not-found.tsx` 404 page.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -67,13 +67,14 @@ Before the final response, run one reporting pass. If candidates remain, from th
 - Shared types: `src/Type/studioType.ts` (`StudioType`) and `src/Type/Category.ts` (`CategoryType`). The backend sends fields the type doesn't declare (`rating`, `images`, `createdAt`) — existing components read them defensively via casts + fallbacks; extend the type or follow that pattern.
 - Card components: `Componets/ProductsCard.tsx` links to `/studio/${_id}`, `Componets/Home/Category.tsx` links to `/category/${title}` (category titles double as URL slugs).
 - Dashboard pages are `"use client"` and gate their fetch on `useSession`; follow that pattern for new data pages. Edit and delete go through daisyUI `<dialog id={_id}>` modals (`showModal()`/`close()` via `document.getElementById`); the edit form lives in `(Dashbord)/_Components/EditListing.tsx`.
-- `Header`, `Footer`, and `<ToastContainer>` are rendered in the root layout — pages only call `toast()`; don't add another `ToastContainer` or `Footer`.
+- `Header` and `Footer` are rendered by the **route-group layouts** `(Root)/layout.tsx` and `(Dashbord)/layout.tsx` — not the root layout (its imports there are commented out). `(Authentication)` has no layout, so auth pages render bare. Never add another `Header`/`Footer` inside a page.
+- `<ToastContainer>` (position top-right, autoClose 3000) is in the root layout — pages only call `toast()`; don't add another one.
 
 ## Conventions
 
 - Path alias `@/*` → `src/*`.
-- Route groups have misspelled names — preserve them: `(Root)` (`/`, `/studios`, `/studio/[id]`, `/category/[category]`), `(Dashbord)` (`/my-listings`, `/add-studio`, `/about-up`), `(Authentication)` (`/sign-in`, `/sign-up`). Nested component folders also differ in casing: `(Authentication)/_components/UserData.tsx` vs `(Dashbord)/_Components/MyListing.tsx` and `EditListing.tsx`; match each group's existing casing (breaks on case-sensitive filesystems).
+- Route groups have misspelled names — preserve them: `(Root)` (`/`, `/studios`, `/studio/[id]`, `/category/[category]`, `/about-us`), `(Dashbord)` (`/my-listings`, `/add-studio`), `(Authentication)` (`/sign-in`, `/sign-up`). Nested component folders also differ in casing: `(Authentication)/_components/UserData.tsx` vs `(Dashbord)/_Components/MyListing.tsx` and `EditListing.tsx`; match each group's existing casing (breaks on case-sensitive filesystems).
 - Shared components sit in `src/app/Componets/` (sic — folder name is misspelled; keep it): `Home/Hero.tsx`, `Home/Category.tsx`, `Home/NewestSix.tsx` (the homepage's "newest studios" section), and `ProductsCard.tsx` (shared card for studios lists).
-- `src/app/Test/Page.tsx` is **not** a route — Next requires lowercase `page.tsx`; it's a static mock of the listings table.
-- Theme: layout's inline `<head>` script sets `data-theme` from `localStorage.theme`, and the Header toggle writes it; `globals.css` enables daisyUI light+dark. The `suppressHydrationWarning` on `<html>` guards that — don't remove it, and don't duplicate the theme script.
+- `Componets/Home/HowWork.tsx` is the homepage "How It Works" section — its heading carries anchor id `HowItWork`, targeted by the Header's `/#HowItWork` nav link.
+- Brand green is hardcoded as arbitrary Tailwind values, not a daisyUI token: `#1F2D22` (dark green) with hover `#354739`, used inline across Header, Footer, Hero, `not-found.tsx`, etc. Use those values to match; don't invent new ones. `globals.css` enables daisyUI light (`--default`) + dark.
 - Styling: Tailwind v4 + daisyUI 5 via `@plugin "daisyui"` in `src/app/globals.css`. Prefer daisyUI semantic classes (`btn`, `card`, `hero`, `fieldset`).

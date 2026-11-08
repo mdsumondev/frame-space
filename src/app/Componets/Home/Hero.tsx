@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const AUTO_SLIDE_INTERVAL = 5000;
@@ -129,18 +130,22 @@ const Hero = () => {
                   {slide.date}
                 </p>
                 <div className="mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
-                  <button
-                    type="button"
-                    className="btn rounded-full border-none bg-indigo-600 px-6 text-sm text-white shadow-none hover:bg-indigo-500 sm:px-8 sm:text-base"
-                  >
-                    BUY NOW
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline rounded-full border-white/70 px-6 text-sm text-white shadow-none hover:border-white hover:bg-white/10 sm:px-8 sm:text-base"
-                  >
-                    MORE INFO
-                  </button>
+                  <Link href="/studios">
+                    <button
+                      type="button"
+                      className="btn rounded-full border-none bg-[#1F2D22] px-6 text-sm text-white shadow-none hover:bg-indigo-500 sm:px-8 sm:text-base"
+                    >
+                      Explore Studios
+                    </button>
+                  </Link>
+                  <Link href="/sign-in">
+                    <button
+                      type="button"
+                      className="btn btn-outline rounded-full border-white/70 px-6 text-sm text-white shadow-none hover:border-white hover:bg-white/10 sm:px-8 sm:text-base"
+                    >
+                      Host Your Space
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>
