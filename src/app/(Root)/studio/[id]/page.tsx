@@ -1,10 +1,11 @@
+import { BookingForm } from "@/app/Componets/BookingForm";
 import { StudioType } from "@/Type/studioType";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 
-export async function generateStaticParams(): Promise<{ category: string }[]> {
+export async function generateStaticParams(): Promise<{ id: string }[]> {
   const studioesData = await fetch("http://localhost:5000/studios", {
     cache: "force-cache",
   });
@@ -19,11 +20,10 @@ export async function generateStaticParams(): Promise<{ category: string }[]> {
   );
 }
 
-// ----------------- singgle studio data load -------------------
+// ----------------- single studio data load -------------------
 
 const singleStudioData = async (id: string): Promise<StudioType> => {
   const res = await fetch(`http://localhost:5000/studios/${id}`);
-  // Backend wraps responses as { status, message, data }.
   const payload = (await res.json()) as {
     status: number;
     message: string;
@@ -137,7 +137,6 @@ const StudioContent = async ({
     ownerEmail,
   } = studio;
 
-  // Fields the shared type doesn't declare yet, read defensively.
   const studioRating = (studio as { rating?: number }).rating;
   const ratingText =
     typeof studioRating === "number" ? studioRating.toFixed(1) : "4.9";
@@ -145,45 +144,39 @@ const StudioContent = async ({
   const ownerImage = (studio as { ownerImage?: string }).ownerImage;
   const extraImages = (studio as { images?: string[] }).images;
 
-  // Feature gallery: count is not fixed — 1 shows a single image, 2 a grid,
-  // 3+ the collage with a counter. `images` array is optional in the API.
   const gallery = Array.from(
     new Set([...(extraImages ?? []), image].filter(Boolean)),
   );
 
-  // Overview: lead = first sentence, rest = body paragraph.
   const overviewText = overview ?? "";
   const firstDot = overviewText.indexOf(". ");
-  const lead = firstDot > 0 ? overviewText.slice(0, firstDot + 1) : overviewText;
+  const lead =
+    firstDot > 0 ? overviewText.slice(0, firstDot + 1) : overviewText;
   const body = firstDot > 0 ? overviewText.slice(firstDot + 2) : "";
 
-  // Fee breakdown — demo duration (matches the time selects below).
   const rate = Number(hourlyRate) || 0;
-  const bookingHours = 6;
-  const bookingFee = rate * bookingHours;
-  const serviceFee = Math.round(bookingFee * 0.12);
   const deposit = Number(securityDeposit) || 0;
-  const estimatedTotal = bookingFee + deposit + serviceFee;
 
   const hostSince = createdAt
     ? `Hosting since ${new Date(createdAt).getFullYear()}`
     : "Verified host";
   const initial = ownerName?.[0]?.toUpperCase() ?? "S";
 
-  // Write-a-review server action: posts to the backend and reloads the page.
-  // Assumes a `POST /studios/:id/reviews` route in the external backend.
   const submitReview = async (formData: FormData) => {
     "use server";
-    const backendRes = await fetch(`http://localhost:5000/studios/${id}/reviews`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        studioId: id,
-        reviewer: formData.get("name"),
-        rating: formData.get("rating"),
-        comment: formData.get("comment"),
-      }),
-    });
+    const backendRes = await fetch(
+      `http://localhost:5000/studios/${id}/reviews`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          studioId: id,
+          reviewer: formData.get("name"),
+          rating: formData.get("rating"),
+          comment: formData.get("comment"),
+        }),
+      },
+    );
     console.log("Review post:", backendRes.status);
     redirect(`/studio/${id}`);
   };
@@ -204,7 +197,7 @@ const StudioContent = async ({
           <span className="truncate font-medium text-stone-900">{title}</span>
         </nav>
 
-        {/* Feature gallery — magic grid by image count */}
+        {/* Feature gallery */}
         <section className="mt-4">
           {gallery.length === 1 && (
             <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-stone-900">
@@ -247,7 +240,6 @@ const StudioContent = async ({
                   sizes="(max-width: 768px) 66vw, 50vw"
                   className="object-cover"
                 />
-                {/* Counter pill */}
                 <span className="absolute bottom-4 right-4 rounded-full bg-white/95 px-3 py-1 text-xs font-medium text-stone-800 shadow-sm">
                   1/{gallery.length}
                 </span>
@@ -285,9 +277,7 @@ const StudioContent = async ({
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
             <span className="flex items-center gap-1.5">
               <StarIcon className="h-4 w-4 text-amber-500" />
-              <span className="font-semibold text-stone-900">
-                {ratingText}
-              </span>
+              <span className="font-semibold text-stone-900">{ratingText}</span>
               <span className="text-stone-500">({reviewsCount} reviews)</span>
             </span>
             <span className="flex items-center gap-1.5 text-stone-500">
@@ -297,9 +287,10 @@ const StudioContent = async ({
           </div>
         </div>
 
-        <div className="mt-10 md:grid md:grid-cols-12 md:items-start md:gap-x-10 md:gap-y-12">
-          {/* Overview */}
-          <div className="md:col-span-7">
+        <div className="mt-10 md:grid md:grid-cols-12 md:items-start md:gap-x-10">
+          {/* Left Column: Overview, Amenities, Host & Reviews (Blank Space Resolved Here) */}
+          <div className="space-y-10 md:col-span-7">
+            {/* Overview */}
             <section className="space-y-5">
               {lead && (
                 <p className="text-lg text-stone-600 sm:text-xl">{lead}</p>
@@ -312,7 +303,7 @@ const StudioContent = async ({
             </section>
 
             {/* Amenities */}
-            <section className="mt-10">
+            <section>
               <h2 className="text-xl font-medium text-stone-900">
                 What this space offers
               </h2>
@@ -325,160 +316,8 @@ const StudioContent = async ({
                 ))}
               </ul>
             </section>
-          </div>
 
-          {/* Booking card (right column on desktop) */}
-          <aside className="mt-10 block md:sticky md:top-24 md:col-start-9 md:col-span-4 md:mt-0 md:self-start">
-            <div className="space-y-4">
-              <div className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="flex items-baseline gap-1.5">
-                    <span className="text-3xl font-bold text-stone-900">
-                      ${rate}
-                    </span>
-                    <span className="text-sm text-stone-500">/ hour</span>
-                  </p>
-                  <span className="flex items-center gap-1 pt-1">
-                    <StarIcon className="h-4 w-4 text-amber-500" />
-                    <span className="text-sm font-semibold text-stone-900">
-                      {ratingText}
-                    </span>
-                  </span>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  <div>
-                    <label
-                      htmlFor="booking-date"
-                      className="text-xs font-medium text-stone-500"
-                    >
-                      Date
-                    </label>
-                    <input
-                      id="booking-date"
-                      name="date"
-                      type="date"
-                      className="input input-bordered mt-1 w-full text-sm"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label
-                        htmlFor="booking-start"
-                        className="text-xs font-medium text-stone-500"
-                      >
-                        Start time
-                      </label>
-                      <select
-                        id="booking-start"
-                        name="start"
-                        defaultValue="9:00 AM"
-                        className="select select-bordered mt-1 w-full text-sm"
-                      >
-                        <option>9:00 AM</option>
-                        <option>10:00 AM</option>
-                        <option>11:00 AM</option>
-                        <option>12:00 PM</option>
-                        <option>1:00 PM</option>
-                        <option>2:00 PM</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="booking-end"
-                        className="text-xs font-medium text-stone-500"
-                      >
-                        End time
-                      </label>
-                      <select
-                        id="booking-end"
-                        name="end"
-                        defaultValue="3:00 PM"
-                        className="select select-bordered mt-1 w-full text-sm"
-                      >
-                        <option>1:00 PM</option>
-                        <option>2:00 PM</option>
-                        <option>3:00 PM</option>
-                        <option>4:00 PM</option>
-                        <option>5:00 PM</option>
-                        <option>6:00 PM</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 text-sm">
-                  <p className="text-xs font-medium text-stone-500">
-                    Fee breakdown
-                  </p>
-                  <div className="mt-2 space-y-1.5">
-                    <p className="flex items-center justify-between">
-                      <span className="text-stone-500">
-                        {bookingHours} hrs × ${rate}/hr
-                      </span>
-                      <span className="font-medium text-stone-900">
-                        ${bookingFee}
-                      </span>
-                    </p>
-                    <p className="flex items-center justify-between">
-                      <span className="text-stone-500">Studio deposit</span>
-                      <span className="font-medium text-stone-900">
-                        ${deposit}
-                      </span>
-                    </p>
-                    <p className="flex items-center justify-between">
-                      <span className="text-stone-500">Service fee (12%)</span>
-                      <span className="font-medium text-stone-900">
-                        ${serviceFee}
-                      </span>
-                    </p>
-                  </div>
-                  <p className="mt-2 flex items-center justify-between border-t border-stone-200 pt-2 text-base font-semibold text-stone-900">
-                    <span>Estimated total</span>
-                    <span>${estimatedTotal}</span>
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  className="btn mt-4 w-full rounded-full border-none bg-[#2f3527] text-white hover:bg-[#3d4434]"
-                >
-                  Book workspace now
-                </button>
-                <p className="mt-2 text-center text-xs text-stone-500">
-                  You won&apos;t be charged yet
-                </p>
-              </div>
-
-              {/* Purchase protection card */}
-              <div className="flex items-start gap-2.5 rounded-2xl border border-stone-200 bg-white p-4">
-                <svg
-                  className="h-5 w-5 shrink-0 text-emerald-700"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 3l7 3v5c0 4.8-3 8.7-7 10-4-1.3-7-5.2-7-10V6l7-3zM9.2 12l2 2 3.6-3.8"
-                  />
-                </svg>
-                <div>
-                  <p className="text-sm font-semibold text-stone-900">
-                    Purchase protection
-                  </p>
-                  <p className="mt-0.5 text-xs text-stone-500">
-                    100% money-back guarantee on your booking.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          {/* Host + guest reviews + write a review */}
-          <div className="mt-10 space-y-12 md:col-span-7 md:mt-0">
+            {/* Meet your host */}
             <section>
               <h2 className="text-xl font-medium text-stone-900">
                 Meet your host
@@ -498,7 +337,6 @@ const StudioContent = async ({
                       {initial}
                     </span>
                   )}
-                  {/* online dot */}
                   <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white" />
                 </div>
 
@@ -643,6 +481,9 @@ const StudioContent = async ({
               </form>
             </section>
           </div>
+
+          {/* Right Column: Client Booking Form */}
+          <BookingForm rate={rate} deposit={deposit} ratingText={ratingText} />
         </div>
       </main>
     </div>
