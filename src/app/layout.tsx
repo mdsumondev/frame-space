@@ -6,6 +6,7 @@ import Header from "./Componets/Header";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "./Componets/Footer";
+import UserContext from "./Componets/UserContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,11 +35,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {/* <Header /> */}
-
-        {children}
-        <ToastContainer position="top-right" autoClose={3000} />
-        {/* <Footer /> */}
+        <UserContext>
+          {children}
+          <ToastContainer position="top-right" autoClose={3000} />
+        </UserContext>
       </body>
     </html>
   );

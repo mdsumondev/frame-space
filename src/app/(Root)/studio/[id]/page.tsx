@@ -2,34 +2,50 @@ import { BookingForm } from "@/app/Componets/BookingForm";
 import { StudioType } from "@/Type/studioType";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import React, { Suspense } from "react";
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
-  const studioesData = await fetch("http://localhost:5000/studios", {
-    cache: "force-cache",
-  });
+  try {
+    const studioesData = await fetch("http://localhost:5000/studios", {
+      cache: "force-cache",
+    });
 
-  const res = await studioesData.json();
-  const studioes = res.data;
+    if (!studioesData.ok) return [];
 
-  return (
-    studioes?.map((studio: { _id: string }) => ({
-      id: studio._id,
-    })) || []
-  );
+    const res = await studioesData.json();
+    const studioes = res.data;
+
+    return (
+      studioes?.map((studio: { _id: string }) => ({
+        id: studio._id,
+      })) || []
+    );
+  } catch {
+    return [];
+  }
 }
 
 // ----------------- single studio data load -------------------
 
-const singleStudioData = async (id: string): Promise<StudioType> => {
-  const res = await fetch(`http://localhost:5000/studios/${id}`);
-  const payload = (await res.json()) as {
-    status: number;
-    message: string;
-    data: StudioType;
-  };
-  return payload.data;
+const singleStudioData = async (id: string): Promise<StudioType | null> => {
+  try {
+    const res = await fetch(`http://localhost:5000/studios/${id}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) return null;
+
+    const payload = (await res.json()) as {
+      status: number;
+      message: string;
+      data: StudioType;
+    };
+
+    return payload?.data ?? null;
+  } catch {
+    return null;
+  }
 };
 
 // ----------------- small shared pieces -------------------
@@ -124,7 +140,13 @@ const StudioContent = async ({
 }) => {
   const { id } = await idPromise;
   const studio = await singleStudioData(id);
+
+  if (!studio) {
+    notFound();
+  }
+
   const {
+    _id,
     title,
     category,
     hourlyRate,
@@ -288,7 +310,7 @@ const StudioContent = async ({
         </div>
 
         <div className="mt-10 md:grid md:grid-cols-12 md:items-start md:gap-x-10">
-          {/* Left Column: Overview, Amenities, Host & Reviews (Blank Space Resolved Here) */}
+          {/* Left Column: Overview, Amenities, Host & Reviews */}
           <div className="space-y-10 md:col-span-7">
             {/* Overview */}
             <section className="space-y-5">
@@ -483,7 +505,12 @@ const StudioContent = async ({
           </div>
 
           {/* Right Column: Client Booking Form */}
-          <BookingForm rate={rate} deposit={deposit} ratingText={ratingText} />
+          <BookingForm
+            rate={rate}
+            deposit={deposit}
+            ratingText={ratingText}
+            prouctId={_id}
+          />
         </div>
       </main>
     </div>

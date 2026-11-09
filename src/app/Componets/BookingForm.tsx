@@ -34,6 +34,7 @@ export const BookingForm = ({
   rate,
   deposit,
   ratingText,
+  prouctId,
 }: BookingFormProps) => {
   const route = useRouter();
 
@@ -68,6 +69,7 @@ export const BookingForm = ({
       estimatedTotal,
       email,
       name,
+      prouctId,
     };
 
     const res = await fetch("http://localhost:5000/studio-book", {

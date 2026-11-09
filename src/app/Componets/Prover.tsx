@@ -161,7 +161,9 @@ export default function Prover({ user }: { user: User }) {
               </Link>
 
               {/* My Bookings */}
-              <button className="flex items-center gap-3.5 w-full px-4 py-3 text-left font-medium text-[15px] text-gray-700 hover:bg-gray-50 rounded-xl transition-all cursor-pointer">
+             <Link href="/my-booking"> 
+             
+               <button className="flex items-center gap-3.5 w-full px-4 py-3 text-left font-medium text-[15px] text-gray-700 hover:bg-gray-50 rounded-xl transition-all cursor-pointer">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -178,6 +180,8 @@ export default function Prover({ user }: { user: User }) {
                 </svg>
                 My Bookings
               </button>
+             
+             </Link>
 
               {/* Log out */}
               <button
