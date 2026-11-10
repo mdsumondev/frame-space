@@ -7,7 +7,7 @@ import React, { Suspense } from "react";
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   try {
-    const studioesData = await fetch("http://localhost:5000/studios", {
+    const studioesData = await fetch(`${process.env.API_BASE_URL}studios`, {
       cache: "force-cache",
     });
 
@@ -30,7 +30,7 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
 
 const singleStudioData = async (id: string): Promise<StudioType | null> => {
   try {
-    const res = await fetch(`http://localhost:5000/studios/${id}`, {
+    const res = await fetch(`${process.env.API_BASE_URL}studios/${id}`, {
       cache: "no-store",
     });
 
@@ -187,7 +187,7 @@ const StudioContent = async ({
   const submitReview = async (formData: FormData) => {
     "use server";
     const backendRes = await fetch(
-      `http://localhost:5000/studios/${id}/reviews`,
+      `${process.env.API_BASE_URL}studios/${id}/reviews`,
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -509,7 +509,7 @@ const StudioContent = async ({
             rate={rate}
             deposit={deposit}
             ratingText={ratingText}
-            prouctId={_id}
+            productId={_id}
           />
         </div>
       </main>

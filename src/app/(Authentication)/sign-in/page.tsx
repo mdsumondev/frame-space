@@ -2,12 +2,16 @@
 
 import { signIn } from "@/lib/auth-client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
-import { toast } from "react-toastify";
 
 const SignInPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const callbackUrl =
+    searchParams.get("callbackUrl") || searchParams.get("redirect") || "/";
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -25,7 +29,7 @@ const SignInPage = () => {
         email: userInfo.email as string,
         password: userInfo.password as string,
         rememberMe: true,
-        callbackURL: "/",
+        callbackURL: callbackUrl,
       });
 
       if (error) {
@@ -33,7 +37,7 @@ const SignInPage = () => {
           error.message || "Sign in failed. Please check your credentials.",
         );
       } else if (data) {
-        router.push("/");
+        router.push(callbackUrl);
       }
     } catch (err) {
       setErrorMessage("An unexpected error occurred. Please try again.");
@@ -48,7 +52,7 @@ const SignInPage = () => {
     try {
       await signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: callbackUrl,
       });
     } catch (err) {
       setErrorMessage("Failed to initiate Google sign in.");
@@ -56,10 +60,10 @@ const SignInPage = () => {
   };
 
   return (
-    <div className="hero bg-base-200 min-h-screen">
-      <div className="hero-content">
-        <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-          <div className="card-body">
+    <div className="hero min-h-screen" style={{ backgroundColor: "#FAF9F3" }}>
+      <div className="hero-content w-full max-w-md">
+        <div className="card bg-base-100 w-full shrink-0 shadow-2xl">
+          <div className="card-body p-8">
             {/* Error Message Display */}
             {errorMessage && (
               <div className="alert alert-error text-sm p-3 rounded-lg mb-2">
@@ -95,7 +99,8 @@ const SignInPage = () => {
 
                 <button
                   type="submit"
-                  className="btn btn-neutral mt-4 w-full"
+                  className="btn mt-6 w-full text-white"
+                  style={{ backgroundColor: "#1F2D22" }}
                   disabled={isLoading}
                 >
                   {isLoading ? "Signing in..." : "Sign In"}
@@ -103,13 +108,14 @@ const SignInPage = () => {
               </fieldset>
             </form>
 
-            <div className="divider text-xs text-gray-500">OR</div>
+            <div className="divider text-xs text-gray-500 my-4">OR</div>
 
             {/* Google Sign-in Button */}
             <button
               type="button"
               onClick={handleGoogleSignIn}
               className="btn btn-outline w-full"
+              style={{ color: "#1F2D22", borderColor: "#1F2D22" }}
               disabled={isLoading}
             >
               Log in with Google
@@ -117,8 +123,12 @@ const SignInPage = () => {
 
             <div className="text-center mt-4 text-sm">
               <p>
-                Have no account?
-                <Link href="/sign-up" className="link link-primary">
+                Have no account?{" "}
+                <Link
+                  href="/sign-up"
+                  className="link font-semibold"
+                  style={{ color: "#1F2D22" }}
+                >
                   Sign up
                 </Link>
               </p>

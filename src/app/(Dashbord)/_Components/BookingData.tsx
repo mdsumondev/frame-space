@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 interface BookingDataProps {
   booking: BookingType;
   refreshBookings: () => Promise<void>;
-  variant?: "table" | "card";
+  variant?: "table" | "card" | "row";
 }
 
 const months = [
@@ -63,7 +63,7 @@ const BookingData = ({
 
   const cancelBooking = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/studio-book/${_id}`, {
+      const res = await fetch(`${process.env.API_BASE_URL}studio-book/${_id}`, {
         method: "DELETE",
       });
 

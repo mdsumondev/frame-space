@@ -15,9 +15,12 @@ const MyListingData = () => {
     try {
       if (!email) return;
 
-      const res = await fetch(`http://localhost:5000/my-listings/${email}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(
+        `${process.env.API_BASE_URL}my-listings/${email}`,
+        {
+          cache: "no-store",
+        },
+      );
 
       if (!res.ok) {
         throw new Error("Failed to fetch listings");

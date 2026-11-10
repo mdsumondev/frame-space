@@ -46,7 +46,7 @@ const AddStudioPage = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/add-studio", {
+      const res = await fetch(`${process.env.API_BASE_URL}add-studio`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

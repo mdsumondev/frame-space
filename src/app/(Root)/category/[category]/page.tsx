@@ -1,8 +1,9 @@
+import { StudioType } from "@/Type/studioType";
 import ProductsCard from "@/app/Componets/ProductsCard";
 import React, { Suspense } from "react";
 
 export async function generateStaticParams(): Promise<{ category: string }[]> {
-  const categoryData = await fetch("http://localhost:5000/category");
+  const categoryData = await fetch(`${process.env.API_BASE_URL}category`);
 
   const res = await categoryData.json();
   const categories = res.data;
@@ -13,13 +14,6 @@ export async function generateStaticParams(): Promise<{ category: string }[]> {
     })) || []
   );
 }
-// Studio Data type definition
-interface StudioType {
-  _id?: string;
-  id?: string;
-  name: string;
-}
-
 // Params type for Next.js 15
 interface PageProps {
   params: Promise<{
@@ -31,7 +25,7 @@ const CategoryWiseStudio = async ({ params }: PageProps) => {
   const { category } = await params;
 
   // 2. Data Fetching
-  const res = await fetch(`http://localhost:5000/category/${category}`, {
+  const res = await fetch(`${process.env.API_BASE_URL}category/${category}`, {
     next: {
       revalidate: 2000,
     },

@@ -13,7 +13,7 @@ const MyListing = ({ listing, refreshListings }: MyListingType) => {
 
   const deleteMyListing = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/my-listings/${id}`, {
+      const res = await fetch(`${process.env.API_BASE_URL}my-listings/${id}`, {
         method: "DELETE",
         headers: {
           "content-type": "application/json",
@@ -74,10 +74,7 @@ const MyListing = ({ listing, refreshListings }: MyListingType) => {
         <div className="flex items-center justify-end gap-2">
           {/* Edit Button */}
 
-          <EditListing
-            listing={listing}
-            refreshListings={refreshListings}
-          />
+          <EditListing listing={listing} refreshListings={refreshListings} />
 
           {/* Delete Button */}
           <button

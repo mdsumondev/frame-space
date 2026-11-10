@@ -13,7 +13,6 @@ export interface User {
 export interface Session  {
   id: string;
   userId: string;
-  userId: string;
   expiresAt: Date;
   token: string;
   createdAt: Date;

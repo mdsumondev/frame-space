@@ -19,7 +19,9 @@ const MyBooking = () => {
     if (!userEmail) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/my-booking/${userEmail}`);
+      const res = await fetch(
+        `${process.env.API_BASE_URL}my-booking/${userEmail}`,
+      );
       const data = await res.json();
       setBookings(data.data);
     } catch (error) {

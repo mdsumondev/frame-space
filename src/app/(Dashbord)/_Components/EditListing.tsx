@@ -60,7 +60,7 @@ const EditListing = ({ listing, refreshListings }: MyListingType) => {
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/my-listings/${_id}`, {
+      const res = await fetch(`${process.env.API_BASE_URL}my-listings/${_id}`, {
         method: "PUT",
         headers: {
           "content-type": "application/json",

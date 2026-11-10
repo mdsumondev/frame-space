@@ -9,11 +9,14 @@ import { handleLogOut } from "../(Authentication)/_components/LogOut";
 
 export default function Prover({ user }: { user: User }) {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
@@ -185,7 +188,7 @@ export default function Prover({ user }: { user: User }) {
 
               {/* Log out */}
               <button
-                onClick={handleLogOut}
+                onClick={() => handleLogOut()}
                 className="flex items-center gap-3.5 w-full px-4 py-3 text-left font-medium text-[15px] text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all cursor-pointer"
               >
                 <svg

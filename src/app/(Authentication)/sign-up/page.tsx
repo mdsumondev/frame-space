@@ -85,45 +85,53 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="hero bg-base-200 min-h-screen">
-      <div className="hero-content">
-        <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-          <div className="card-body">
+    <div className="hero min-h-screen" style={{ backgroundColor: "#FAF9F3" }}>
+      <div className="hero-content w-full max-w-md">
+        <div className="card bg-base-100 w-full shrink-0 shadow-2xl">
+          <div className="card-body p-8">
             <form onSubmit={handleSubmit}>
               <fieldset className="fieldset">
-                <label className="name">Name</label>
+                <label className="label" htmlFor="name">
+                  Name
+                </label>
                 <input
                   type="text"
-                  className="input"
+                  className="input w-full"
                   id="name"
                   name="name"
                   placeholder="Name"
                   required
                 />
 
-                <label className="label">Email</label>
+                <label className="label mt-2" htmlFor="email">
+                  Email
+                </label>
                 <input
                   type="email"
-                  className="input"
+                  className="input w-full"
                   id="email"
                   name="email"
                   placeholder="Email"
                   required
                 />
 
-                <label className="label">Photo URL</label>
+                <label className="label mt-2" htmlFor="photoUrl">
+                  Photo URL
+                </label>
                 <input
                   type="text"
-                  className="input"
+                  className="input w-full"
                   id="photoUrl"
                   name="photoUrl"
                   placeholder="Photo URL"
                 />
 
-                <label className="label">Password</label>
+                <label className="label mt-2" htmlFor="password">
+                  Password
+                </label>
                 <input
                   type="password"
-                  className={`input ${passwordError ? "input-error" : ""}`}
+                  className={`input w-full ${passwordError ? "input-error" : ""}`}
                   id="password"
                   name="password"
                   placeholder="Password"
@@ -139,28 +147,34 @@ const SignUpPage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="btn btn-neutral mt-4 w-full"
+                  className="btn mt-6 w-full text-white"
+                  style={{ backgroundColor: "#1F2D22" }}
                 >
                   {loading ? "Signing Up..." : "Sign Up"}
                 </button>
               </fieldset>
 
-              <p className="my-2 text-center">Or</p>
+              <div className="divider text-xs text-gray-500 my-4">OR</div>
 
               {/* Social Login (Google) */}
               <button
                 type="button"
                 onClick={googleSignIn}
                 className="btn btn-outline w-full"
+                style={{ color: "#1F2D22", borderColor: "#1F2D22" }}
               >
                 Log in with Google
               </button>
 
               {/* Navigation link to Login page */}
-              <div className="mt-4 text-center">
+              <div className="mt-4 text-center text-sm">
                 <p>
                   Have an account?{" "}
-                  <Link href="/sign-in" className="link link-primary">
+                  <Link
+                    href="/sign-in"
+                    className="link font-semibold"
+                    style={{ color: "#1F2D22" }}
+                  >
                     Sign in
                   </Link>
                 </p>

@@ -28,13 +28,14 @@ interface BookingFormProps {
   rate: number;
   deposit: number;
   ratingText: string;
+  productId: string;
 }
 
 export const BookingForm = ({
   rate,
   deposit,
   ratingText,
-  prouctId,
+  productId,
 }: BookingFormProps) => {
   const route = useRouter();
 
@@ -69,10 +70,10 @@ export const BookingForm = ({
       estimatedTotal,
       email,
       name,
-      prouctId,
+      productId,
     };
 
-    const res = await fetch("http://localhost:5000/studio-book", {
+    const res = await fetch(`${process.env.API_BASE_URL}studio-book`, {
       method: "POST",
       headers: {
         "content-type": "application/json",

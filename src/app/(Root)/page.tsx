@@ -11,7 +11,7 @@ const categoryData = async (): Promise<{
   message: string;
   data: CategoryType[];
 }> => {
-  const res = await fetch("http://localhost:5000/category", {
+  const res = await fetch(`${process.env.API_BASE_URL}category`, {
     next: {
       revalidate: 2000,
     },
