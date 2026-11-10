@@ -6,26 +6,25 @@ import Category from "../Componets/Home/Category";
 import NewestFeatures from "../Componets/Home/NewestSix";
 import HowWork from "../Componets/Home/HowWork";
 
-const categoryData = async (): Promise<{
-  status: number;
-  message: string;
-  data: CategoryType[];
-}> => {
-  const res = await fetch(`${process.env.API_BASE_URL}category`, {
-    next: {
-      revalidate: 2000,
-    },
-  });
+const categoryData = async (): Promise<CategoryType[]> => {
+  try {
+    const res = await fetch(`${process.env.API_BASE_URL}category`, {
+      next: {
+        revalidate: 2000,
+      },
+    });
 
-  return res.json();
+    if (!res.ok) return [];
+
+    const payload = (await res.json()) as { data?: CategoryType[] };
+    return payload?.data ?? [];
+  } catch {
+    return [];
+  }
 };
 
 export default async function Home() {
-  const categoriesResponse = await categoryData();
-
-  const categories = categoriesResponse.data;
-
-  console.log(categories);
+  const categories = await categoryData();
 
   return (
     <div>

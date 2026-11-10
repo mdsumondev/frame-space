@@ -5,27 +5,6 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import React, { Suspense } from "react";
 
-export async function generateStaticParams(): Promise<{ id: string }[]> {
-  try {
-    const studioesData = await fetch(`${process.env.API_BASE_URL}studios`, {
-      cache: "force-cache",
-    });
-
-    if (!studioesData.ok) return [];
-
-    const res = await studioesData.json();
-    const studioes = res.data;
-
-    return (
-      studioes?.map((studio: { _id: string }) => ({
-        id: studio._id,
-      })) || []
-    );
-  } catch {
-    return [];
-  }
-}
-
 // ----------------- single studio data load -------------------
 
 const singleStudioData = async (id: string): Promise<StudioType | null> => {

@@ -2,18 +2,6 @@ import { StudioType } from "@/Type/studioType";
 import ProductsCard from "@/app/Componets/ProductsCard";
 import React, { Suspense } from "react";
 
-export async function generateStaticParams(): Promise<{ category: string }[]> {
-  const categoryData = await fetch(`${process.env.API_BASE_URL}category`);
-
-  const res = await categoryData.json();
-  const categories = res.data;
-
-  return (
-    categories?.map((category: { title: string }) => ({
-      category: category.title,
-    })) || []
-  );
-}
 // Params type for Next.js 15
 interface PageProps {
   params: Promise<{
@@ -21,18 +9,48 @@ interface PageProps {
   }>;
 }
 
-const CategoryWiseStudio = async ({ params }: PageProps) => {
+// 2. Data Fetching
+const fetchCategoryStudios = async (
+  category: string,
+): Promise<StudioType[] | null> => {
+  try {
+    const res = await fetch(
+      `${process.env.API_BASE_URL}category/${category}`,
+      {
+        next: {
+          revalidate: 2000,
+        },
+      },
+    );
+
+    if (!res.ok) return null;
+
+    const result = await res.json();
+
+    return Array.isArray(result) ? result : result?.data ?? null;
+  } catch {
+    return null;
+  }
+};
+
+const CategoryContent = async ({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}) => {
   const { category } = await params;
+  const studioes = await fetchCategoryStudios(category);
 
-  // 2. Data Fetching
-  const res = await fetch(`${process.env.API_BASE_URL}category/${category}`, {
-    next: {
-      revalidate: 2000,
-    },
-  });
-
-  const result = await res.json();
-  const studioes: StudioType[] = result;
+  if (!studioes?.length) {
+    return (
+      <div className="container mx-auto py-20 text-center">
+        <h1 className="text-3xl font-bold mb-3">{category} studios</h1>
+        <p className="text-base text-stone-500">
+          No studios are available in this category right now.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-20">
@@ -59,4 +77,12 @@ const CategoryWiseStudio = async ({ params }: PageProps) => {
   );
 };
 
-export default CategoryWiseStudio;
+export default function CategoryWiseStudio({ params }: PageProps) {
+  return (
+    <Suspense fallback={
+      <span className="loading loading-ring loading-2xl"></span>
+    }>
+      <CategoryContent params={params} />
+    </Suspense>
+  );
+}

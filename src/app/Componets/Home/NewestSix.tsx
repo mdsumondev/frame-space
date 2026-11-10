@@ -2,21 +2,25 @@ import { StudioType } from "@/Type/studioType";
 import React, { Suspense } from "react";
 import ProductsCard from "../ProductsCard";
 
-const newestDataCall = async (): Promise<{
-  status: number;
-  message: string;
-  data: StudioType[];
-}> => {
-  const res = await fetch(`${process.env.API_BASE_URL}neweststudios`, {
-    next: {
-      revalidate: 2000,
-    },
-  });
-  return res.json();
+const newestDataCall = async (): Promise<StudioType[]> => {
+  try {
+    const res = await fetch(`${process.env.API_BASE_URL}neweststudios`, {
+      next: {
+        revalidate: 2000,
+      },
+    });
+
+    if (!res.ok) return [];
+
+    const payload = (await res.json()) as { data?: StudioType[] };
+    return payload?.data ?? [];
+  } catch {
+    return [];
+  }
 };
 
 const NewestFeatures = async () => {
-  const newestStudios: StudioType[] = (await newestDataCall()).data;
+  const newestStudios = await newestDataCall();
 
   return (
     <div className="bg-[#FAF9F3] py-20">

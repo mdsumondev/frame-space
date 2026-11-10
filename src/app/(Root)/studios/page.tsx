@@ -4,10 +4,14 @@ import React, { Suspense } from "react";
 
 // 1. Fixed return type signature and added await for res.json()
 const fetchStudiosData = async (): Promise<StudioType[]> => {
-  const res = await fetch(`${process.env.API_BASE_URL}studios`);
-  const result: { status: number; message: string; data: StudioType[] } =
-    await res.json();
-  return result.data;
+  try {
+    const res = await fetch(`${process.env.API_BASE_URL}studios`);
+    const result: { status: number; message: string; data: StudioType[] } =
+      await res.json();
+    return result.data ?? [];
+  } catch {
+    return [];
+  }
 };
 
 const StudiosPage = async () => {
