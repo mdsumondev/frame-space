@@ -9,7 +9,7 @@ import React, { Suspense } from "react";
 
 const singleStudioData = async (id: string): Promise<StudioType | null> => {
   try {
-    const res = await fetch(`${process.env.API_BASE_URL}studios/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}studios/${id}`, {
       cache: "no-store",
     });
 
@@ -166,7 +166,7 @@ const StudioContent = async ({
   const submitReview = async (formData: FormData) => {
     "use server";
     const backendRes = await fetch(
-      `${process.env.API_BASE_URL}studios/${id}/reviews`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}studios/${id}/reviews`,
       {
         method: "POST",
         headers: { "content-type": "application/json" },

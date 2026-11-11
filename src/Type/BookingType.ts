@@ -9,5 +9,5 @@ export interface BookingType {
   estimatedTotal: number;
   email: string;
   name: string;
-  prouctId: string;
+  productId: string;
 }

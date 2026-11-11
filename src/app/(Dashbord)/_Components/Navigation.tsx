@@ -5,7 +5,7 @@ import { handleLogOut } from "@/app/(Authentication)/_components/LogOut";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 
 const navItems = [
   {
@@ -121,7 +121,7 @@ const navItems = [
 ];
 
 const itemClass = (href: string, pathname: string) =>
-  `flex flex-none items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
     href !== "#" && pathname.startsWith(href)
       ? "bg-[#1F2D22]/10 font-semibold text-white dark:bg-emerald-400/10 dark:text-white"
       : "text-white hover:bg-[#1F2D22]/5 dark:text-white dark:hover:bg-white/5"
@@ -129,15 +129,63 @@ const itemClass = (href: string, pathname: string) =>
 
 const Navigation = () => {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
   const { data: session, isPending } = useSession();
   const user = session?.user;
 
   return (
-    <aside className="flex w-full max-w-[500px] shrink-0 flex-col bg-[#1F2D22] border-b border-base-200 lg:min-h-screen lg:w-72 lg:border-b-0 lg:border-r">
-      {/* Brand + user card — sidebar only (mobile has the site header) */}
-      <div className="hidden lg:block">
-        <div className="px-5 pt-5 pb-4">
-          <Link href="/" className="inline-block">
+    <>
+      {/* Mobile Top Header with Hamburger Bar */}
+      <div className="flex items-center justify-between bg-[#1F2D22] p-4 lg:hidden">
+        <Link href="/">
+          <Image
+            src="/white-logo.png"
+            alt="FrameSpace Logo"
+            width={118}
+            height={40}
+            className="h-8 w-auto"
+            priority
+          />
+        </Link>
+        <button
+          onClick={() => setIsOpen(true)}
+          className="rounded-lg p-2 text-white hover:bg-white/10"
+          aria-label="Open menu"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.8}
+            stroke="currentColor"
+            className="h-6 w-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Backdrop for Mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 transition-opacity lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Drawer */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-[#1F2D22] transition-transform duration-300 ease-in-out lg:static lg:w-72 lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:min-h-screen lg:border-r lg:border-base-200`}
+      >
+        {/* Brand Header + Mobile Close Button */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-4">
+          <Link href="/" onClick={() => setIsOpen(false)}>
             <Image
               src="/white-logo.png"
               alt="FrameSpace — back to home"
@@ -147,8 +195,29 @@ const Navigation = () => {
               priority
             />
           </Link>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="rounded-lg p-1.5 text-white hover:bg-white/10 lg:hidden"
+            aria-label="Close menu"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.8}
+              stroke="currentColor"
+              className="h-6 w-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18 18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
 
+        {/* User Card */}
         <div className="border-t border-base-200 px-5 py-4">
           {isPending ? (
             <div className="flex items-center gap-3">
@@ -158,12 +227,11 @@ const Navigation = () => {
             user && (
               <div className="flex items-center gap-3">
                 <div className="bg-base-200 h-11 w-11 shrink-0 overflow-hidden rounded-full">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <Image
                     src={user.image ?? ""}
                     alt={user.name ?? "User avatar"}
-                    width={8}
-                    height={8}
+                    width={44}
+                    height={44}
                     className="h-full w-full object-cover"
                   />
                 </div>
@@ -177,48 +245,51 @@ const Navigation = () => {
             )
           )}
         </div>
-      </div>
 
-      {/* Items — horizontal scroll strip on mobile, vertical list on desktop */}
-      <nav className="flex gap-1.5 overflow-x-auto p-3 lg:mt-2 lg:flex-col lg:gap-1 lg:overflow-x-visible lg:p-4 xl:gap-1.5">
-        {navItems.map((item) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={`${itemClass(item.href, pathname)} text-white`}
+        {/* Navigation Items */}
+        <nav className="flex flex-col gap-1 overflow-y-auto p-4 lg:mt-2">
+          {navItems.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              onClick={() => setIsOpen(false)}
+              className={itemClass(item.href, pathname)}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        {/* Logout Button Pinned at Bottom */}
+        <div className="mt-auto border-t border-base-200 p-4">
+          <button
+            onClick={() => {
+              setIsOpen(false);
+              handleLogOut();
+            }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-50 hover:text-red-600 dark:text-white dark:hover:bg-red-500/10 dark:hover:text-red-400"
           >
-            {item.icon}
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </nav>
-
-      {/* Log out pinned to the bottom of the sidebar */}
-      <div className="hidden border-t border-base-200 p-4 lg:mt-auto lg:block">
-        <button
-          onClick={() => handleLogOut()}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-50 hover:text-red-600 dark:text-white dark:hover:bg-red-500/10 dark:hover:text-red-400"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.8}
-            stroke="currentColor"
-            className="h-5 w-5"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"
-            />
-          </svg>
-
-          <span className="cursor-pointer">Logout</span>
-        </button>
-      </div>
-    </aside>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.8}
+              stroke="currentColor"
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"
+              />
+            </svg>
+            <span className="cursor-pointer">Logout</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };
 

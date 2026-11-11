@@ -13,7 +13,7 @@ const MyListing = ({ listing, refreshListings }: MyListingType) => {
 
   const deleteMyListing = async (id: string) => {
     try {
-      const res = await fetch(`${process.env.API_BASE_URL}my-listings/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}my-listings/${id}`, {
         method: "DELETE",
         headers: {
           "content-type": "application/json",

@@ -1,6 +1,6 @@
 # frame-space
 
-Small Next.js 16 app (App Router, single package, npm). "Frame space" — implemented so far: authentication (email/password + Google sign-in/sign-up), the studio dashboard (`/add-studio`, `/my-listings`), public browsing routes (`/studios`, `/studio/[id]`, `/category/[category]`), `/about-us`, and a global `not-found.tsx` 404 page.
+Small Next.js 16 app (App Router, single package, npm). "Frame space" — implemented so far: authentication (email/password + Google sign-in/sign-up), the studio dashboard (`/dashbord` overview, `/add-studio`, `/my-listings`), booking (`/my-booking`, booking form on each studio page), public browsing routes (`/studios`, `/studio/[id]`, `/category/[category]`), `/about-us`, and a global `not-found.tsx` 404 page.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -56,24 +56,32 @@ Before the final response, run one reporting pass. If candidates remain, from th
 - Auth API is mounted at `src/app/api/auth/[...all]/route.ts` (`/api/auth/*` to the better-auth handler).
 - Auth UI pages live in the route group `src/app/(Authentication)/` (`/sign-in`, `/sign-up`); client pages use `router.push` + `react-toastify` `toast()` for feedback.
 
-- Required env vars (`.env` at repo root, gitignored — never commit or echo values): `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `MONGODB_URI`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+- Required env vars (`.env` at repo root, gitignored — never commit or echo values): `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `MONGODB_URI`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_API_BASE_URL`.
+
+## Route protection (`src/proxy.ts`)
+
+- Next 16 renamed middleware: `src/proxy.ts` exports `proxy(request)` (not `middleware`). It calls `auth.api.getSession` and redirects unauthenticated users to `/sign-in?callbackUrl=<original path>`.
+- It imports `@/lib/auth`, so it requires a reachable `MONGODB_URI`; a Mongo error also redirects to `/sign-in`.
+- Its matcher includes misspelled/speculative paths — `/my-booking/:path*` is singular (the real route), while `/my-bookings/:path*` and `/studios/edit/:path*` match no existing page yet. New protected routes must be added to the matcher list.
 
 ## Studio data (external backend)
 
-- **All** app data lives in a separate backend, not in this repo. Every fetch is hardcoded to `http://localhost:5000`: `GET /category`, `GET /category/:category`, `GET /studios`, `GET /studios/:id`, `GET /neweststudios`, `POST /studios/:id/reviews`, `POST /add-studio`, `GET /my-listings/:email` (keyed by user email), and `PUT /my-listings/:id` / `DELETE /my-listings/:id`. Without that server running, the homepage, browsing routes, and dashboard pages all fail — errors are only `console.log`ged, so check the browser / server console.
+- **All** app data lives in a separate backend, not in this repo. Every fetch uses `process.env.NEXT_PUBLIC_API_BASE_URL` (set to `http://localhost:5000/` in `.env`; the `NEXT_PUBLIC_` prefix is required because client components fetch directly from the browser). Endpoints: `GET /category`, `GET /category/:category`, `GET /studios`, `GET /studios/:id`, `GET /neweststudios`, `POST /studios/:id/reviews`, `POST /add-studio`, `GET /my-listings/:email` (keyed by user email), `PUT`/`DELETE /my-listings/:id`, and the booking set: `POST /studio-book`, `GET /my-booking/:email`, `DELETE /studio-book/:id` (cancel). Without that server running, the homepage, browsing routes, and dashboard pages all fail — errors are only `console.log`ged, so check the browser / server console.
+- **The base URL must end with a trailing `/`** — no code adds one; URLs are built as `${process.env.NEXT_PUBLIC_API_BASE_URL}studios` etc.
 - Response envelope is inconsistent: most endpoints return `{ status, message, data }` and you must unwrap `.data`, but `GET /category/:category` returns the bare array. Check the actual payload shape when wiring a new endpoint instead of assuming.
 - Homepage `src/app/(Root)/page.tsx` is a server component that fetches `GET /category` with `{ next: { revalidate: 2000 } }` (same revalidate on `/category/[category]`); follow that fetch + `<Suspense>` pattern for server-side data. `/studio/[id]` uses `generateStaticParams` with a separate `cache: "force-cache"` fetch of `GET /studios`.
 - Route params are `Promise`s — pages receive `params: Promise<...>` and must `await` them (see any `page.tsx` under `(Root)`). `/studio/[id]` posts reviews via an inline `"use server"` action, then `redirect()`s back to the page.
-- Shared types: `src/Type/studioType.ts` (`StudioType`) and `src/Type/Category.ts` (`CategoryType`). The backend sends fields the type doesn't declare (`rating`, `images`, `createdAt`) — existing components read them defensively via casts + fallbacks; extend the type or follow that pattern.
+- Shared types: `src/Type/studioType.ts` (`StudioType`), `src/Type/Category.ts` (`CategoryType`), `src/Type/BookingType.ts`, `src/Type/UserType.ts`. The backend sends fields the types don't declare (`rating`, `images`, `createdAt`, `studioName`/`studioTitle` on bookings) — existing components read them defensively via casts + fallbacks; extend the type or follow that pattern.
 - Card components: `Componets/ProductsCard.tsx` links to `/studio/${_id}`, `Componets/Home/Category.tsx` links to `/category/${title}` (category titles double as URL slugs).
-- Dashboard pages are `"use client"` and gate their fetch on `useSession`; follow that pattern for new data pages. Edit and delete go through daisyUI `<dialog id={_id}>` modals (`showModal()`/`close()` via `document.getElementById`); the edit form lives in `(Dashbord)/_Components/EditListing.tsx`.
-- `Header` and `Footer` are rendered by the **route-group layouts** `(Root)/layout.tsx` and `(Dashbord)/layout.tsx` — not the root layout (its imports there are commented out). `(Authentication)` has no layout, so auth pages render bare. Never add another `Header`/`Footer` inside a page.
+- Dashboard pages are `"use client"` and gate their fetch on `useSession`; follow that pattern for new data pages. Edit and delete go through daisyUI `<dialog id={_id}>` modals (`showModal()`/`close()` via `document.getElementById`); the edit form lives in `(Dashbord)/_Components/EditListing.tsx`. `/dashbord` is a client overview page whose stat cards are **hardcoded mock values**, not fetched data. `/my-booking` renders bookings via `(Dashbord)/_Components/BookingData.tsx` with a `variant` prop (`"card"` on mobile, `"row"` in a table on desktop).
+- The studio page's booking form is `Componets/BookingForm.tsx` (named export): it computes fees/hours client-side and `POST`s to `/studio-book`, then `router.push("/my-booking")` on success. Success detection is `result.message === "success"`.
+- `Header` and `Footer` are rendered by the **route-group layouts** `(Root)/layout.tsx` and `(Dashbord)/layout.tsx` — not the root layout (which imports both but never renders them; those imports are just lint noise). `(Authentication)` has no layout, so auth pages render bare. Never add another `Header`/`Footer` inside a page. The root layout wraps everything in `Componets/UserContext.tsx`, which exposes the Better Auth user via `UserContextData` context — `Header`'s logged-in dropdown is `Componets/Prover.tsx` (sic — misspelled "Provider").
 - `<ToastContainer>` (position top-right, autoClose 3000) is in the root layout — pages only call `toast()`; don't add another one.
 
 ## Conventions
 
 - Path alias `@/*` → `src/*`.
-- Route groups have misspelled names — preserve them: `(Root)` (`/`, `/studios`, `/studio/[id]`, `/category/[category]`, `/about-us`), `(Dashbord)` (`/my-listings`, `/add-studio`), `(Authentication)` (`/sign-in`, `/sign-up`). Nested component folders also differ in casing: `(Authentication)/_components/UserData.tsx` vs `(Dashbord)/_Components/MyListing.tsx` and `EditListing.tsx`; match each group's existing casing (breaks on case-sensitive filesystems).
+- Route groups have misspelled names — preserve them: `(Root)` (`/`, `/studios`, `/studio/[id]`, `/category/[category]`, `/about-us`), `(Dashbord)` (`/dashbord`, `/my-listings`, `/add-studio`, `/my-booking`), `(Authentication)` (`/sign-in`, `/sign-up`). Nested component folders also differ in casing: `(Authentication)/_components/UserData.tsx` vs `(Dashbord)/_Components/MyListing.tsx` and `EditListing.tsx`; match each group's existing casing (breaks on case-sensitive filesystems).
 - Shared components sit in `src/app/Componets/` (sic — folder name is misspelled; keep it): `Home/Hero.tsx`, `Home/Category.tsx`, `Home/NewestSix.tsx` (the homepage's "newest studios" section), and `ProductsCard.tsx` (shared card for studios lists).
 - `Componets/Home/HowWork.tsx` is the homepage "How It Works" section — its heading carries anchor id `HowItWork`, targeted by the Header's `/#HowItWork` nav link.
 - Brand green is hardcoded as arbitrary Tailwind values, not a daisyUI token: `#1F2D22` (dark green) with hover `#354739`, used inline across Header, Footer, Hero, `not-found.tsx`, etc. Use those values to match; don't invent new ones. `globals.css` enables daisyUI light (`--default`) + dark.

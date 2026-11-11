@@ -8,7 +8,7 @@ import HowWork from "../Componets/Home/HowWork";
 
 const categoryData = async (): Promise<CategoryType[]> => {
   try {
-    const res = await fetch(`${process.env.API_BASE_URL}category`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}category`, {
       next: {
         revalidate: 2000,
       },

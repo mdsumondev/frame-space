@@ -15,7 +15,7 @@ const fetchCategoryStudios = async (
 ): Promise<StudioType[] | null> => {
   try {
     const res = await fetch(
-      `${process.env.API_BASE_URL}category/${category}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}category/${category}`,
       {
         next: {
           revalidate: 2000,
@@ -27,7 +27,7 @@ const fetchCategoryStudios = async (
 
     const result = await res.json();
 
-    return Array.isArray(result) ? result : result?.data ?? null;
+    return Array.isArray(result) ? result : (result?.data ?? null);
   } catch {
     return null;
   }
@@ -53,7 +53,7 @@ const CategoryContent = async ({
   }
 
   return (
-    <div className="container mx-auto py-20">
+    <div className="container mx-auto py-20 px-5 lg:px-0">
       <div>
         <div className="mb-5">
           <h1 className="text-4xl font-bold mb-3">
@@ -79,9 +79,9 @@ const CategoryContent = async ({
 
 export default function CategoryWiseStudio({ params }: PageProps) {
   return (
-    <Suspense fallback={
-      <span className="loading loading-ring loading-2xl"></span>
-    }>
+    <Suspense
+      fallback={<span className="loading loading-ring loading-2xl"></span>}
+    >
       <CategoryContent params={params} />
     </Suspense>
   );

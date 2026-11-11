@@ -16,7 +16,7 @@ const MyListingData = () => {
       if (!email) return;
 
       const res = await fetch(
-        `${process.env.API_BASE_URL}my-listings/${email}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}my-listings/${email}`,
         {
           cache: "no-store",
         },
@@ -36,30 +36,38 @@ const MyListingData = () => {
   useEffect(() => {
     fetchListingsData();
   }, [fetchListingsData]);
+
   return (
     <div>
       <div>
-        <div className="max-w-7xl w-full mt-5 mx-auto flex justify-between">
+        {/* Responsive Header */}
+        <div className="max-w-7xl w-full mt-5 mx-auto px-4 sm:px-6 lg:px-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-1">My studio listings</h1>
-            <p>Manage how your spaces appear to creators.</p>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1">
+              My studio listings
+            </h1>
+            <p className="text-sm sm:text-base">
+              Manage how your spaces appear to creators.
+            </p>
           </div>
-          <div>
+
+          <div className="w-full sm:w-auto">
             <Link
               href="/add-studio"
-              className="btn rounded-full border-[#deded2] bg-white text-[#5c6052] shadow-none hover:border-[#c9cbb9] hover:bg-[#f2f5ec]"
+              className="btn w-full sm:w-auto rounded-full border-[#deded2] bg-white text-[#5c6052] shadow-none hover:border-[#c9cbb9] hover:bg-[#f2f5ec]"
             >
               Add new studio
             </Link>
           </div>
         </div>
 
-        <div className="max-w-7xl w-full mx-auto mt-3">
-          <p className="text-lg font-semibold">
+        <div className="max-w-7xl w-full mx-auto mt-3 px-4 sm:px-6 lg:px-0">
+          <p className="text-base sm:text-lg font-semibold">
             {listings.length} active listings
           </p>
         </div>
 
+        {/* Responsive Table */}
         <div className="min-h-screen w-full bg-[#f4f5f0] p-4 sm:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-7xl overflow-x-auto rounded-2xl border border-stone-200/80 bg-white shadow-sm">
             <table className="table min-w-[760px]">

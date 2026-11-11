@@ -4,7 +4,7 @@ import ProductsCard from "../ProductsCard";
 
 const newestDataCall = async (): Promise<StudioType[]> => {
   try {
-    const res = await fetch(`${process.env.API_BASE_URL}neweststudios`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}neweststudios`, {
       next: {
         revalidate: 2000,
       },

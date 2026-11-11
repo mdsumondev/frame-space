@@ -73,7 +73,7 @@ export const BookingForm = ({
       productId,
     };
 
-    const res = await fetch(`${process.env.API_BASE_URL}studio-book`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}studio-book`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
