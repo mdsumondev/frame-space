@@ -2,8 +2,6 @@ import ProductsCard from "@/app/Componets/ProductsCard";
 import { StudioType } from "@/Type/studioType";
 import React, { Suspense } from "react";
 
-export const dynamic = "force-dynamic";
-
 const fetchStudiosData = async (): Promise<StudioType[]> => {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
