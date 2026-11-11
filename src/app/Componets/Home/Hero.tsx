@@ -60,14 +60,12 @@ const Hero = () => {
     [index, goTo],
   );
 
-  // Auto slide every 5s; pauses on hover. Timer resets on every slide change.
   useEffect(() => {
     if (isHovered) return;
     const timer = setInterval(next, AUTO_SLIDE_INTERVAL);
     return () => clearInterval(timer);
   }, [index, isHovered, next]);
 
-  // Keep `index` in sync when the user swipes/drags the carousel manually.
   useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel) return;
@@ -90,13 +88,13 @@ const Hero = () => {
 
   return (
     <section
-      className="relative w-full"
+      className="relative w-full overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
         ref={carouselRef}
-        className="carousel min-h-[calc(100vh-86px)] w-full sm:h-[90vh] lg:h-[90vh]"
+        className="carousel flex h-[460px] min-h-[400px] w-full snap-x snap-mandatory overflow-x-auto scroll-smooth scrollbar-none sm:h-[90vh]"
       >
         {slides.map((slide, i) => (
           <div
@@ -104,8 +102,9 @@ const Hero = () => {
             ref={(el) => {
               slideRefs.current[i] = el;
             }}
-            className="relative h-full min-w-full snap-center overflow-hidden bg-base-300"
+            className="relative h-full w-full min-w-full flex-shrink-0 snap-center bg-base-300"
           >
+            {/* Background Image */}
             <Image
               src={slide.image}
               alt={slide.alt}
@@ -114,34 +113,42 @@ const Hero = () => {
               sizes="100vw"
               className="object-cover"
             />
-            {/* Dark gradient overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/20" />
 
-            {/* Slide content */}
-            <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-5 text-white sm:px-8 lg:px-12">
-              <div className="max-w-xl">
-                <h1 className="text-3xl leading-tight font-bold sm:text-4xl lg:text-5xl">
+            {/* Dark Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30 sm:bg-gradient-to-r sm:from-black/80 sm:via-black/50 sm:to-transparent" />
+
+            {/* Content Container - Centered */}
+            <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col items-center justify-end px-5 pb-8 text-center text-white sm:justify-center sm:px-10 sm:pb-0 lg:px-16">
+              <div className="flex max-w-xl flex-col items-center">
+                {/* Title (Bigger Size) */}
+                <h1 className="text-2xl font-bold leading-tight sm:text-4xl lg:text-5xl">
                   {slide.title}
                 </h1>
-                <p className="mt-1 text-lg text-white/85 sm:text-2xl lg:text-3xl">
+
+                {/* Subtitle (Bigger Size) */}
+                <p className="mt-1.5 text-base text-white/90 sm:text-2xl lg:text-3xl">
                   {slide.subtitle}
                 </p>
-                <p className="mt-4 text-sm text-white/75 sm:text-base">
+
+                {/* Date */}
+                <p className="mt-2 text-xs font-medium text-white/75 sm:text-base">
                   {slide.date}
                 </p>
-                <div className="mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
-                  <Link href="/studios">
+
+                {/* Buttons Layout */}
+                <div className="mt-5 flex w-full flex-col items-center gap-2.5 sm:w-auto sm:flex-row sm:gap-4">
+                  <Link href="/studios" className="w-full sm:w-auto">
                     <button
                       type="button"
-                      className="btn rounded-full border-none bg-[#1F2D22] px-6 text-sm text-white shadow-none hover:bg-indigo-500 sm:px-8 sm:text-base"
+                      className="btn btn-sm w-full rounded-full border-none bg-[#1F2D22] text-xs text-white shadow-md hover:bg-indigo-600 sm:btn-md sm:w-auto sm:px-8 sm:text-base"
                     >
                       Explore Studios
                     </button>
                   </Link>
-                  <Link href="/sign-in">
+                  <Link href="/sign-in" className="w-full sm:w-auto">
                     <button
                       type="button"
-                      className="btn btn-outline rounded-full border-white/70 px-6 text-sm text-white shadow-none hover:border-white hover:bg-white/10 sm:px-8 sm:text-base"
+                      className="btn btn-outline btn-sm w-full rounded-full border-white/70 text-xs text-white shadow-md hover:border-white hover:bg-white/10 sm:btn-md sm:w-auto sm:px-8 sm:text-base"
                     >
                       Host Your Space
                     </button>
@@ -153,20 +160,20 @@ const Hero = () => {
         ))}
       </div>
 
-      {/* Navigation arrows */}
+      {/* Navigation Arrows */}
       <button
         type="button"
         aria-label="Previous slide"
         onClick={prev}
-        className="btn btn-circle btn-ghost absolute top-1/2 left-2 z-20 hidden -translate-y-1/2 border border-white/30 bg-black/30 text-white hover:border-white hover:bg-black/60 sm:flex sm:left-4"
+        className="btn btn-circle btn-ghost absolute left-2 top-1/2 z-20 h-8 w-8 -translate-y-1/2 border border-white/30 bg-black/40 text-white backdrop-blur-sm hover:border-white hover:bg-black/70 sm:left-6 sm:h-12 sm:w-12"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className="h-4 w-4 sm:h-6 sm:w-6"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="2.5"
         >
           <path
             strokeLinecap="round"
@@ -175,66 +182,27 @@ const Hero = () => {
           />
         </svg>
       </button>
+
       <button
         type="button"
         aria-label="Next slide"
         onClick={next}
-        className="btn btn-circle btn-ghost absolute top-1/2 right-2 z-20 hidden -translate-y-1/2 border border-white/30 bg-black/30 text-white hover:border-white hover:bg-black/60 sm:flex sm:right-4"
+        className="btn btn-circle btn-ghost absolute right-2 top-1/2 z-20 h-8 w-8 -translate-y-1/2 border border-white/30 bg-black/40 text-white backdrop-blur-sm hover:border-white hover:bg-black/70 sm:right-6 sm:h-12 sm:w-12"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className="h-4 w-4 sm:h-6 sm:w-6"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="2.5"
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
       </button>
 
-      {/* Mobile-only navigation arrows (always visible under sm) */}
-      <button
-        type="button"
-        aria-label="Previous slide"
-        onClick={prev}
-        className="btn btn-circle btn-ghost absolute top-1/2 left-1 z-20 -translate-y-1/2 border border-white/30 bg-black/30 text-white btn-xs hover:border-white hover:bg-black/60 sm:hidden"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-3 w-3"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="3"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-      </button>
-      <button
-        type="button"
-        aria-label="Next slide"
-        onClick={next}
-        className="btn btn-circle btn-ghost absolute top-1/2 right-1 z-20 -translate-y-1/2 border border-white/30 bg-black/30 text-white btn-xs hover:border-white hover:bg-black/60 sm:hidden"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-3 w-3"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="3"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-
-      {/* Pagination dots */}
-      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 sm:bottom-5 sm:gap-3">
+      {/* Pagination Dots */}
+      <div className="absolute bottom-2.5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 sm:bottom-6 sm:gap-3">
         {slides.map((slide, i) => (
           <button
             key={slide.id}
@@ -242,10 +210,10 @@ const Hero = () => {
             aria-label={`Go to slide ${i + 1}`}
             aria-current={index === i}
             onClick={() => goTo(i)}
-            className={`h-2 w-2 rounded-full transition-all duration-300 sm:h-2.5 sm:w-2.5 ${
+            className={`h-1.5 rounded-full transition-all duration-300 sm:h-2.5 ${
               index === i
-                ? "w-6 bg-indigo-500 sm:w-8"
-                : "bg-white/50 hover:bg-white/80"
+                ? "w-5 bg-indigo-500 sm:w-8"
+                : "w-1.5 bg-white/50 hover:bg-white/80 sm:w-2.5"
             }`}
           />
         ))}

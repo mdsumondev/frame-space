@@ -30,7 +30,7 @@ export default async function Home() {
     <div>
       <Hero />
 
-      <section className="py-20 bg-[#F7F8F5]">
+      <section className="py-20 px-5 lg:px-0 bg-[#F7F8F5]">
         <div className="container mx-auto mb-5">
           <h5 className="text-xs font-semibold uppercase mb-1">
             Find your setting

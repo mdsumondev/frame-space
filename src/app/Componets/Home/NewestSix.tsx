@@ -23,11 +23,11 @@ const NewestFeatures = async () => {
   const newestStudios = await newestDataCall();
 
   return (
-    <div className="bg-[#FAF9F3] py-20">
+    <div className="bg-[#FAF9F3] py-20 px-5 lg:px-0">
       <div className="container mx-auto">
         <h5 className="text-xs font-semibold uppercase mb-1">NEW ARRIVALS</h5>
         <h2 className="text-3xl font-bold mb-4">Discover Our Newest Studios</h2>
-        <p className="text-base mb-5 max-w-1/3 w-full">
+        <p className="text-base mb-5 lg:max-w-1/3 w-full">
           Be the first to explore our latest creative spaces. Discover newly
           listed photography studios, film stages, podcast lounges, and
           more—ready to bring your next big idea to life.

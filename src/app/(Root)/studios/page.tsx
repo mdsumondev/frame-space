@@ -19,7 +19,7 @@ const StudiosPage = async () => {
 
   return (
     <div>
-      <div className="container mx-auto py-20">
+      <div className="container mx-auto py-20 px-5 lg:px-0">
         <h1 className="text-3xl font-bold mb-2">All Studios</h1>
         <p className="text-base mb-5">
           Total {studios.length} studios available
