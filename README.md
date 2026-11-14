@@ -8,9 +8,9 @@ Studio owners can list their available spaces, manage studio information, and ha
 
 ## 🌐 Live Demo
 
-- **Live Website:** [Add Your Live Website URL]
-- **Frontend Repository:** [Add Frontend GitHub URL]
-- **Backend Repository:** [Add Backend GitHub URL]
+- **Live Website:** https://frame-space-8r7a.vercel.app/
+- **Frontend Repository:** https://github.com/mdsumondev/frame-space
+- **Backend Repository:**https://github.com/mdsumondev/frame-space-backend
 
 ---
 
@@ -108,87 +108,6 @@ During development, I focused on solving several important technical challenges:
 - Maintaining consistent layouts across different screen sizes.
 - Ensuring a smooth user experience on mobile and desktop devices.
 
----
-
-## 🚀 Getting Started
-
-Follow these steps to run the project locally.
-
-### Prerequisites
-
-Make sure you have installed:
-
-- Node.js (LTS recommended)
-- npm
-- MongoDB database or MongoDB Atlas
-- Git
-
-### 1. Clone the Repositories
-
-Clone the frontend and backend repositories separately.
-
-```bash
-# Clone frontend
-git clone YOUR_FRONTEND_REPOSITORY_URL
-
-# Clone backend
-git clone YOUR_BACKEND_REPOSITORY_URL
-```
-
-### 2. Install Dependencies
-
-Run the following command inside both frontend and backend project directories:
-
-```bash
-npm install
-```
-
-### 3. Configure Environment Variables
-
-Create a `.env` file in the frontend project root.
-
-```env
-BETTER_AUTH_URL=http://localhost:3000
-BETTER_AUTH_SECRET=your_better_auth_secret
-MONGODB_URI=your_mongodb_connection_string
-```
-
-Configure the backend environment variables according to your backend configuration.
-
-```env
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string
-```
-
-**Note:** Replace the placeholder values with your actual credentials. Never commit your `.env` file or expose sensitive information.
-
-### 4. Run the Backend Server
-
-```bash
-npm run dev
-```
-
-The backend server should start at:
-
-```text
-http://localhost:5000
-```
-
-### 5. Run the Frontend Application
-
-Open another terminal and navigate to the frontend directory.
-
-```bash
-npm run dev
-```
-
-Open your browser and visit:
-
-```text
-http://localhost:3000
-```
-
----
 
 ## 🎯 Project Goals
 
@@ -201,14 +120,5 @@ By connecting studio owners and creative professionals through one platform, Fra
 ## 👨‍💻 Developer
 
 **Md. Sumon**
-
-Frontend Developer | Shopify & Web Development
-
-- GitHub: [Your GitHub Profile](https://github.com/)
-- LinkedIn: [Md. Sumon](https://www.linkedin.com/in/md-sumondev/)
-
----
-
-## 📄 License
 
 This project was developed for educational and portfolio purposes.
